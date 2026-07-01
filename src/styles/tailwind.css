@@ -1,0 +1,335 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* IBM Plex Mono - preloaded via next/font in layout.tsx, kept for fallback */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* ==========================================================================
+   DESIGN TOKENS (CSS Custom Properties)
+   ========================================================================== */
+:root {
+  /* Core palette */
+  --background: #0a0a0c;
+  --foreground: #f0f0f5;
+  --primary: #00e5ff;
+  --primary-foreground: #0a0a0c;
+  --secondary: #1a1a2e;
+  --secondary-foreground: #a0a0b8;
+  --accent: #d946ef;
+  --accent-foreground: #0a0a0c;
+  --muted: #141420;
+  --muted-foreground: #6b6b85;
+  --card: #0f0f18;
+  --card-foreground: #f0f0f5;
+  --border: #1e1e30;
+  --input: #1a1a2e;
+  --ring: #00e5ff;
+  --radius: 0.75rem;
+
+  /* Semantic colors */
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  /* Glow tokens (alpha handled in utilities) */
+  --glow-cyan: 0 229 255;
+  --glow-magenta: 217 70 239;
+  --glow-success: 16 185 129;
+  --glow-danger: 239 68 68;
+  --glow-warning: 245 158 11;
+
+  /* Fonts (set via next/font variables in layout.tsx) */
+  --font-sans: var(--font-geist-sans), 'Geist', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+}
+
+/* Color scheme for native form controls */
+:root {
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   BASE LAYER
+   ========================================================================== */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    margin: 0;
+  }
+
+  /* Scrollbar - thin, unobtrusive */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(0, 229, 255, 0.25);
+    color: var(--foreground);
+  }
+
+  /* Focus visible for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* ==========================================================================
+   UTILITIES LAYER - Organized by category
+   ========================================================================== */
+@layer utilities {
+  /* -----------------------------------------------------------------------
+     Typography
+     ----------------------------------------------------------------------- */
+  .font-mono-data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings:
+      'tnum' on,
+      'ss01' on;
+  }
+
+  /* -----------------------------------------------------------------------
+     Glass Cards - parameterized via custom property
+     Usage: .glass-card { --glass-border: rgba(var(--glow-cyan), 0.2); }
+     ----------------------------------------------------------------------- */
+  .glass-card,
+  .glass-card-danger,
+  .glass-card-success,
+  .glass-card-warning,
+  .glass-card-cyan {
+    background: linear-gradient(135deg, rgba(15, 15, 24, 0.9) 0%, rgba(20, 20, 32, 0.7) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border, rgba(0, 229, 255, 0.08));
+  }
+
+  .glass-card-danger {
+    --glass-border: rgba(var(--glow-danger), 0.15);
+  }
+  .glass-card-success {
+    --glass-border: rgba(var(--glow-success), 0.15);
+  }
+  .glass-card-warning {
+    --glass-border: rgba(var(--glow-warning), 0.15);
+  }
+  .glass-card-cyan {
+    --glass-border: rgba(var(--glow-cyan), 0.2);
+  }
+
+  /* -----------------------------------------------------------------------
+     Glow Effects - using RGB tokens for consistent alpha control
+     ----------------------------------------------------------------------- */
+  .glow-cyan {
+    box-shadow:
+      0 0 20px rgba(var(--glow-cyan), 0.15),
+      0 0 40px rgba(var(--glow-cyan), 0.05);
+  }
+  .glow-cyan-strong {
+    box-shadow:
+      0 0 30px rgba(var(--glow-cyan), 0.3),
+      0 0 60px rgba(var(--glow-cyan), 0.1);
+  }
+  .glow-magenta {
+    box-shadow:
+      0 0 20px rgba(var(--glow-magenta), 0.2),
+      0 0 40px rgba(var(--glow-magenta), 0.08);
+  }
+  .glow-success {
+    box-shadow:
+      0 0 20px rgba(var(--glow-success), 0.2),
+      0 0 40px rgba(var(--glow-success), 0.08);
+  }
+  .glow-danger {
+    box-shadow:
+      0 0 20px rgba(var(--glow-danger), 0.2),
+      0 0 40px rgba(var(--glow-danger), 0.08);
+  }
+
+  /* -----------------------------------------------------------------------
+     Tab States
+     ----------------------------------------------------------------------- */
+  .tab-active {
+    background: linear-gradient(
+      135deg,
+      rgba(var(--glow-cyan), 0.12) 0%,
+      rgba(var(--glow-cyan), 0.04) 100%
+    );
+    border-bottom: 2px solid var(--primary);
+    color: var(--primary);
+  }
+  .tab-inactive {
+    color: var(--muted-foreground);
+    border-bottom: 2px solid transparent;
+  }
+  .tab-inactive:hover {
+    color: var(--foreground);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  /* -----------------------------------------------------------------------
+     Neon Text
+     ----------------------------------------------------------------------- */
+  .neon-text-cyan {
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(var(--glow-cyan), 0.5);
+  }
+  .neon-text-magenta {
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(var(--glow-magenta), 0.5);
+  }
+
+  /* -----------------------------------------------------------------------
+     Background Patterns
+     ----------------------------------------------------------------------- */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(var(--glow-cyan), 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--glow-cyan), 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .bg-grid-subtle {
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(var(--glow-cyan), 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(var(--glow-magenta), 0.04) 0%, transparent 50%);
+  }
+
+  /* -----------------------------------------------------------------------
+     Semantic Color Text
+     ----------------------------------------------------------------------- */
+  .text-positive {
+    color: var(--success);
+  }
+  .text-negative {
+    color: var(--danger);
+  }
+  .text-warning-amber {
+    color: var(--warning);
+  }
+
+  /* -----------------------------------------------------------------------
+     Animations
+     ----------------------------------------------------------------------- */
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes glowPulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  .skeleton-dark {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 25%,
+      rgba(30, 30, 48, 0.8) 50%,
+      var(--muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.4s ease forwards;
+  }
+  .animate-glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* -----------------------------------------------------------------------
+     Misc
+     ----------------------------------------------------------------------- */
+  .border-glow-cyan {
+    border: 1px solid rgba(var(--glow-cyan), 0.3);
+  }
+  .forecast-node {
+    filter: drop-shadow(0 0 6px rgba(var(--glow-magenta), 0.8));
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES (minimal)
+   ========================================================================== */
+@media print {
+  .glass-card,
+  .glass-card-danger,
+  .glass-card-success,
+  .glass-card-warning,
+  .glass-card-cyan {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  .animate-fade-in-up,
+  .animate-glow-pulse,
+  .animate-pulse-slow,
+  .skeleton-dark {
+    animation: none !important;
+  }
+}
