@@ -48,3 +48,6 @@ out/
 # misc
 .DS_Store
 *.pem
+
+# Archived experiments
+archive/
