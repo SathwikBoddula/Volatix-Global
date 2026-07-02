@@ -1,10 +1,10 @@
 // src/data/providers/index.ts
 /**
  * Volatix — Market Data Providers Public API
- * 
+ *
  * Exports the provider interface and default implementation.
  * Callers import from here — never from concrete implementation files directly.
- * 
+ *
  * @module data/providers
  */
 

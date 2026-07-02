@@ -1,20 +1,16 @@
 // src/data/providers/DefaultMarketDataProvider.ts
 /**
  * Volatix — Default Market Data Provider
- * 
+ *
  * Implements MarketDataProvider using the existing mock data generation.
  * This preserves the exact TickerData contract and indicator computations.
- * 
+ *
  * @module data/providers/DefaultMarketDataProvider
  * @server-compatible — No browser APIs, works in Next.js Server Components
  */
 
 import { MarketDataProvider } from './MarketDataProvider';
-import { 
-  generateMockData, 
-  normalizeTicker, 
-  type TickerData, 
-} from '../../app/data/mockData';
+import { generateMockData, normalizeTicker, type TickerData } from '../../app/data/mockData';
 
 /**
  * Default provider using existing mock data infrastructure.

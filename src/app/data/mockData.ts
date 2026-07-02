@@ -192,6 +192,21 @@ export interface IDataProvider {
 // ============================================================================
 // CONSTANTS & CONFIGURATION
 // ============================================================================
+// ============================================================================
+// DATA MODE (Milestone 1 — flag scaffolding; no runtime effect yet)
+// ============================================================================
+
+/** Data source mode. `mock` = simulated data; `live` = real provider (later milestones). */
+export type MarketDataMode = 'live' | 'mock';
+
+/**
+ * Single source of truth for the active data mode.
+ * Defaults to 'mock' so current behavior is unchanged until a real provider is
+ * registered (Milestone 2+). Anything other than 'live' resolves to 'mock'.
+ */
+export function getMarketDataMode(): MarketDataMode {
+  return process.env.MARKET_DATA_MODE === 'live' ? 'live' : 'mock';
+}
 
 /** Default configuration - can be overridden via environment or config file */
 const DEFAULT_PROVIDER_CONFIGS: DataProviderConfig[] = [

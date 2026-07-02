@@ -1,10 +1,10 @@
 // src/data/providers/MarketDataProvider.ts
 /**
  * Volatix — Market Data Provider Contract
- * 
+ *
  * Defines the interface all market data providers must implement.
  * Dashboard components depend ONLY on this interface.
- * 
+ *
  * @module data/providers/MarketDataProvider
  */
 
@@ -17,7 +17,7 @@ import type { TickerData, NormalizedTicker } from '../../app/data/mockData';
 export interface MarketDataProvider {
   /**
    * Fetch complete ticker data for a canonical symbol.
-   * 
+   *
    * @param symbol - Canonical symbol (e.g., "AAPL", "RELIANCE.NS", "^NSEI")
    * @returns Complete TickerData or null if not found
    */
