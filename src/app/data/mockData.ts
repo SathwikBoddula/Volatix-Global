@@ -192,6 +192,21 @@ export interface IDataProvider {
 // ============================================================================
 // CONSTANTS & CONFIGURATION
 // ============================================================================
+// ============================================================================
+// DATA MODE (Milestone 1 — flag scaffolding; no runtime effect yet)
+// ============================================================================
+
+/** Data source mode. `mock` = simulated data; `live` = real provider (later milestones). */
+export type MarketDataMode = 'live' | 'mock';
+
+/**
+ * Single source of truth for the active data mode.
+ * Defaults to 'mock' so current behavior is unchanged until a real provider is
+ * registered (Milestone 2+). Anything other than 'live' resolves to 'mock'.
+ */
+export function getMarketDataMode(): MarketDataMode {
+  return process.env.MARKET_DATA_MODE === 'live' ? 'live' : 'mock';
+}
 
 /** Default configuration - can be overridden via environment or config file */
 const DEFAULT_PROVIDER_CONFIGS: DataProviderConfig[] = [
@@ -1321,12 +1336,60 @@ providerRegistry.initialize();
 // ============================================================================
 // PUBLIC API (Backward compatible)
 // ============================================================================
-
 /**
  * Main entry point - generates complete ticker data for dashboard components.
  * Maintains exact same signature and return type as original generateMockData.
  * Now uses the provider architecture with caching and fallback.
  */
+export async function assembleTickerData(
+  provider: IDataProvider,
+  ticker: NormalizedTicker
+): Promise<{ data: TickerData | null; retryable: boolean; errors: DataError[] }> {
+  const [metadataResult, historyResult, summaryResult, forecastResult, backtestResult] =
+    await Promise.all([
+      provider.getMetadata(ticker),
+      provider.getHistory({ ticker, range: '1y' }),
+      provider.getSummary({ ticker }),
+      provider.getForecast({ ticker, horizonDays: 7 }),
+      provider.getBacktest({ ticker }),
+    ]);
+
+  const errors = [metadataResult, historyResult, summaryResult, forecastResult, backtestResult]
+    .filter((r) => r.error)
+    .map((r) => r.error!);
+  const retryable = errors.some((e) => e.retryable);
+
+  if (errors.length > 0) {
+    // Partial-data policy (preserved from generateMockData): if core summary +
+    // history are present, return a partial payload; otherwise null.
+    if (summaryResult.data && historyResult.data) {
+      return {
+        data: {
+          metadata: metadataResult.data!,
+          summary: summaryResult.data,
+          history: historyResult.data,
+          backtest: backtestResult.data ?? [],
+          forecast: forecastResult.data ?? [],
+        },
+        retryable,
+        errors,
+      };
+    }
+    return { data: null, retryable, errors };
+  }
+
+  return {
+    data: {
+      metadata: metadataResult.data!,
+      summary: summaryResult.data!,
+      history: historyResult.data!,
+      backtest: backtestResult.data!,
+      forecast: forecastResult.data!,
+    },
+    retryable,
+    errors,
+  };
+}
 export async function generateMockData(ticker: string): Promise<TickerData | null> {
   const normalized = normalizeTicker(ticker);
   const provider = providerRegistry.resolveProvider(normalized);
@@ -1337,44 +1400,11 @@ export async function generateMockData(ticker: string): Promise<TickerData | nul
   }
 
   try {
-    // Fetch all data in parallel for performance
-    const [metadataResult, historyResult, summaryResult, forecastResult, backtestResult] =
-      await Promise.all([
-        provider.getMetadata(normalized),
-        provider.getHistory({ ticker: normalized, range: '1y' }),
-        provider.getSummary({ ticker: normalized }),
-        provider.getForecast({ ticker: normalized, horizonDays: 7 }),
-        provider.getBacktest({ ticker: normalized }),
-      ]);
-
-    // Check for errors
-    const errors = [metadataResult, historyResult, summaryResult, forecastResult, backtestResult]
-      .filter((r) => r.error)
-      .map((r) => r.error!);
-
+    const { data, errors } = await assembleTickerData(provider, normalized);
     if (errors.length > 0) {
-      // If mock provider fails, something is seriously wrong
-      console.error('[DataLayer] Data fetch errors:', errors);
-      // Try to return partial data if summary succeeded
-      if (summaryResult.data && historyResult.data) {
-        return {
-          metadata: metadataResult.data!,
-          summary: summaryResult.data,
-          history: historyResult.data,
-          backtest: backtestResult.data ?? [],
-          forecast: forecastResult.data ?? [],
-        };
-      }
-      return null;
+      console.error('[DataLayer] Data fetch errors:', errors); // Preserved logging: surfaces provider-level failures for observability.
     }
-
-    return {
-      metadata: metadataResult.data!,
-      summary: summaryResult.data!,
-      history: historyResult.data!,
-      backtest: backtestResult.data!,
-      forecast: forecastResult.data!,
-    };
+    return data;
   } catch (err) {
     console.error('[DataLayer] Unexpected error in generateMockData:', err);
     return null;
