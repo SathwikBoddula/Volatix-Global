@@ -60,6 +60,7 @@
     "react": "19.0.3",
     "react-dom": "19.0.3",
     "recharts": "^2.15.2",
+    "server-only": "^0.0.1",
     "sonner": "^1.7.4",
     "yahoo-finance2": "^2"
   },

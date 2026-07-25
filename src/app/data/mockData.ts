@@ -1362,10 +1362,10 @@ export async function assembleTickerData(
   if (errors.length > 0) {
     // Partial-data policy (preserved from generateMockData): if core summary +
     // history are present, return a partial payload; otherwise null.
-    if (summaryResult.data && historyResult.data) {
+    if (metadataResult.data && summaryResult.data && historyResult.data) {
       return {
         data: {
-          metadata: metadataResult.data!,
+          metadata: metadataResult.data,
           summary: summaryResult.data,
           history: historyResult.data,
           backtest: backtestResult.data ?? [],
@@ -1380,7 +1380,7 @@ export async function assembleTickerData(
 
   return {
     data: {
-      metadata: metadataResult.data!,
+      metadata: metadataResult.data,
       summary: summaryResult.data!,
       history: historyResult.data!,
       backtest: backtestResult.data!,
@@ -1595,6 +1595,7 @@ export {
   calculateEMA,
   calculateRSI,
   calculateMACD,
+  CacheProvider,
 };
 
 // ============================================================================

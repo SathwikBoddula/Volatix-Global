@@ -7,12 +7,8 @@
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import {
-  generateMockData,
-  normalizeTicker,
-  type NormalizedTicker,
-  type TickerData,
-} from './data/mockData';
+import { normalizeTicker, type NormalizedTicker, type TickerData } from './data/mockData';
+import { getTickerData } from './data/marketData.server';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 
 // ---------------------------------------------------------------------------
@@ -145,8 +141,11 @@ export default async function Page({ searchParams }: PageProps) {
     console.info(`[Page] Unknown ticker requested: ${rawTicker} -> ${canonicalKey}`);
   }
 
-  // 4. Fetch complete dataset on server (parallelized in data layer)
-  const tickerData = await generateMockData(canonicalKey);
+  // 4. Fetch the complete dataset on the server via the market-data service.
+  //    Pass the RAW ticker — the service normalizes once internally, then applies
+  //    the MARKET_DATA_MODE-driven live/mock selection, retry, and stale-cache
+  //    fallback. (canonicalKey is still used below for observability logging.)
+  const tickerData = await getTickerData(rawTicker);
 
   // 5. Handle not found / data layer failure
   if (!tickerData) {

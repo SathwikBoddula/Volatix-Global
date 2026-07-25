@@ -10,6 +10,12 @@ const nextConfig = {
     },
   },
 
+  // yahoo-finance2 is dnt-generated (Deno→Node) and its ESM entry dynamically
+  // imports Deno-only test helpers (esm/tests/fetchCache.js → @std/testing/*),
+  // which webpack cannot resolve. Keep it un-bundled: load it from node_modules
+  // at runtime on the server only (it's only reachable via marketData.server.ts).
+  serverExternalPackages: ['yahoo-finance2'],
+
   // Turbopack for faster builds (stable in Next.js 15)
   turbopack: {
     rules: {

@@ -7,19 +7,14 @@
 
 'use client';
 
-import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Topbar from './Topbar';
 import HeroKPIGrid from './HeroKPIGrid';
 import TabNavigation from './TabNavigation';
 import TabContent from './TabContent';
 import DashboardSkeleton from './DashboardSkeleton';
-import {
-  generateMockData,
-  normalizeTicker,
-  type TickerData,
-  type NormalizedTicker,
-} from '../data/mockData';
+import { type TickerData, type NormalizedTicker } from '../data/mockData';
 
 // ---------------------------------------------------------------------------
 // TYPES (Preserved for child component compatibility)
@@ -48,9 +43,6 @@ interface AnalyticsDashboardProps {
 // CONSTANTS
 // ---------------------------------------------------------------------------
 
-/** Minimum loading display time to prevent flash (ms) */
-const MIN_LOADING_DURATION = 600;
-
 /** Debounce for rapid ticker changes */
 const TICKER_CHANGE_DEBOUNCE = 150;
 
@@ -63,6 +55,8 @@ export default function AnalyticsDashboard({
   ticker: initialTicker,
   serverRendered,
 }: AnalyticsDashboardProps) {
+  const router = useRouter();
+
   // -------------------------------------------------------------------------
   // STATE
   // -------------------------------------------------------------------------
@@ -85,8 +79,7 @@ export default function AnalyticsDashboard({
   /** Track if we've completed initial hydration */
   const [isHydrated, setIsHydrated] = useState(false);
 
-  /** Refs for loading UX */
-  const loadStartRef = useRef<number>(0);
+  /** Debounce timer for ticker search */
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // -------------------------------------------------------------------------
@@ -128,11 +121,18 @@ export default function AnalyticsDashboard({
   // -------------------------------------------------------------------------
 
   /**
-   * Client-side ticker search with debounce, loading UX, and error handling
-   * Uses async generateMockData from upgraded data layer
+   * Client-side ticker search → server round-trip.
+   *
+   * The dashboard is a Client Component and cannot import the server-only
+   * market-data service, so instead of fetching here we navigate to `/?ticker=…`.
+   * page.tsx re-runs on the server and re-fetches through `getTickerData`, so
+   * client-initiated ticker changes honor MARKET_DATA_MODE, retry, and
+   * stale-cache — and never silently show mock data in LIVE mode. The refreshed
+   * server props are synced into state by the initialData effect above; invalid
+   * tickers resolve to not-found.tsx on the server.
    */
   const handleTickerSearch = useCallback(
-    async (rawTicker: string) => {
+    (rawTicker: string) => {
       const trimmed = rawTicker.trim().toUpperCase();
       if (!trimmed || trimmed === displaySymbol) return;
 
@@ -141,44 +141,13 @@ export default function AnalyticsDashboard({
         clearTimeout(debounceTimerRef.current);
       }
 
-      debounceTimerRef.current = setTimeout(async () => {
-        loadStartRef.current = Date.now();
-        setIsLoading(true);
-
-        try {
-          // Normalize using data layer utility (consistent with server)
-          const normalized = normalizeTicker(trimmed);
-          const canonicalKey = normalized.normalized;
-
-          // Fetch from data layer (async, supports future API providers)
-          const result = await generateMockData(canonicalKey);
-
-          // Enforce minimum loading duration for smooth UX
-          const elapsed = Date.now() - loadStartRef.current;
-          const remaining = Math.max(0, MIN_LOADING_DURATION - elapsed);
-
-          await new Promise((resolve) => setTimeout(resolve, remaining));
-
-          if (!result) {
-            toast.error(`"${trimmed}" not found. Try NVDA, AAPL, RELIANCE.NS, TCS, etc.`);
-            setIsLoading(false);
-            return;
-          }
-
-          // Update all state atomically
-          setTickerData(result);
-          setTicker(normalized);
-          setDisplaySymbol(normalized.displaySymbol);
-          setActiveTab('overview'); // Reset to overview on ticker change
-          setIsLoading(false);
-        } catch (err) {
-          console.error('[Dashboard] Ticker search failed:', err);
-          toast.error('Failed to load data. Please try again.');
-          setIsLoading(false);
-        }
+      debounceTimerRef.current = setTimeout(() => {
+        setIsLoading(true); // Topbar shows progress during the server round-trip
+        setActiveTab('overview'); // Reset to overview on ticker change
+        router.push(`/?ticker=${encodeURIComponent(trimmed)}`);
       }, TICKER_CHANGE_DEBOUNCE);
     },
-    [displaySymbol]
+    [displaySymbol, router]
   );
 
   /**
