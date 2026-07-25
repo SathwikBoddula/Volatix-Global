@@ -38,7 +38,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     });
   } catch {
-    console.error('[API /market-data] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
