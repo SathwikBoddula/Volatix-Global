@@ -1,4 +1,5 @@
 // src/app/data/marketDataService.ts
+
 /**
  * Volatix — Market Data Service (Milestone 3)
  *
@@ -35,12 +36,18 @@ export type MockFetch = (rawTicker: string) => Promise<TickerData | null>;
 export interface MarketDataServiceDeps {
   /** Live source (e.g. YahooDataProvider), injected at a server-only site. */
   liveProvider: IDataProvider;
+
   /** Mock/simulated source, used only in `mock` mode. */
   mockFetch: MockFetch;
+
   /** Injectable clock (tests). Defaults to Date.now. */
   now?: () => number;
+
   /** Retryable-error retries on the live path (default 1). */
   maxRetries?: number;
+
+  /** Base delay for exponential backoff in ms (default 250). */
+  baseRetryDelayMs?: number;
 }
 
 export interface MarketDataService {
@@ -56,7 +63,13 @@ interface CacheEntry {
 export function createMarketDataService(deps: MarketDataServiceDeps): MarketDataService {
   const now = deps.now ?? (() => Date.now());
   const maxRetries = deps.maxRetries ?? 1;
+  const baseRetryDelayMs = deps.baseRetryDelayMs ?? 250;
+
   const cache = new Map<string, CacheEntry>();
+
+  async function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
   async function getTickerData(rawTicker: string): Promise<TickerData | null> {
     const normalized = normalizeTicker(rawTicker);
@@ -68,6 +81,7 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
 
     // `live` mode: try fresh, retrying only while failures are retryable.
     const key = normalized.normalized;
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       let data: TickerData | null = null;
       let retryable = false;
@@ -75,17 +89,29 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
       try {
         ({ data, retryable } = await assembleTickerData(deps.liveProvider, normalized));
       } catch {
-        // Defensive: IDataProvider implementations return DataResult and should
-        // not throw, but treat an unexpected throw as a retryable failure.
+        // Defensive: IDataProvider implementations should return DataResult
+        // instead of throwing. Treat unexpected throws as retryable.
         retryable = true;
       }
 
       if (data) {
-        cache.set(key, { data, fetchedAt: now() });
+        cache.set(key, {
+          data,
+          fetchedAt: now(),
+        });
+
         return data;
       }
 
-      if (!retryable) break;
+      if (!retryable) {
+        break;
+      }
+
+      // Exponential backoff before retrying.
+      if (attempt < maxRetries) {
+        const delay = baseRetryDelayMs * Math.pow(2, attempt);
+        await sleep(delay);
+      }
     }
 
     // Failure policy: serve last-good cached real data; never silent mock.
@@ -93,5 +119,7 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
     return cached ? cached.data : null;
   }
 
-  return { getTickerData };
+  return {
+    getTickerData,
+  };
 }

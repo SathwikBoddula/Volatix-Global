@@ -17,10 +17,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const rawTicker = ticker.toUpperCase().trim();
 
     if (!rawTicker) {
-      return NextResponse.json(
-        { error: 'Invalid ticker parameter' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid ticker parameter' }, { status: 400 });
     }
 
     const data = await getTickerData(rawTicker);
@@ -38,9 +35,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     });
   } catch {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

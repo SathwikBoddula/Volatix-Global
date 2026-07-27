@@ -1362,10 +1362,12 @@ export async function assembleTickerData(
   if (errors.length > 0) {
     // Partial-data policy (preserved from generateMockData): if core summary +
     // history are present, return a partial payload; otherwise null.
-    if (metadataResult.data && summaryResult.data && historyResult.data) {
+    const metadata = metadataResult.data;
+
+    if (metadata && summaryResult.data && historyResult.data) {
       return {
         data: {
-          metadata: metadataResult.data,
+          metadata,
           summary: summaryResult.data,
           history: historyResult.data,
           backtest: backtestResult.data ?? [],
@@ -1375,12 +1377,17 @@ export async function assembleTickerData(
         errors,
       };
     }
+
     return { data: null, retryable, errors };
   }
 
+  const metadata = metadataResult.data;
+  if (!metadata) {
+    return { data: null, retryable, errors };
+  }
   return {
     data: {
-      metadata: metadataResult.data,
+      metadata,
       summary: summaryResult.data!,
       history: historyResult.data!,
       backtest: backtestResult.data!,
