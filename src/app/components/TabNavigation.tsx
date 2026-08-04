@@ -120,7 +120,7 @@ const TabNavigation = memo(function TabNavigation({
       aria-label="Dashboard sections"
     >
       <div className="flex gap-0 min-w-max" role="tablist">
-        {TABS.map((tab, index) => {
+        {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
 

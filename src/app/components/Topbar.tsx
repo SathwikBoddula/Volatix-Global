@@ -7,7 +7,7 @@
 'use client';
 
 import React, { memo, useMemo, useState, useRef, useEffect, useCallback } from 'react';
-import { Search, Zap, Activity, ChevronDown, Clock, TrendingUp, Loader2 } from 'lucide-react';
+import { Search, Zap, Activity, Clock, TrendingUp, Loader2 } from 'lucide-react';
 import AppLogo from '@/components/ui/AppLogo';
 import type { NormalizedTicker } from '../data/mockData';
 
@@ -234,7 +234,6 @@ const Topbar = memo(function Topbar({
                   placeholder="Search ticker — NVDA, AAPL, TSLA..."
                   className="flex-1 bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none font-mono-data"
                   aria-label="Search ticker symbol"
-                  aria-expanded={showDropdown}
                   aria-controls="ticker-dropdown"
                   disabled={!isHydrated}
                 />

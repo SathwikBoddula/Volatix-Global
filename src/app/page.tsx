@@ -7,7 +7,7 @@
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { normalizeTicker, type NormalizedTicker, type TickerData } from './data/mockData';
+import { normalizeTicker } from './data/mockData';
 import { getTickerData } from './data/marketData.server';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 
@@ -53,15 +53,6 @@ const KNOWN_TICKERS = new Set([
 interface PageProps {
   /** Next.js 15: searchParams is a Promise */
   searchParams: Promise<{ ticker?: string }>;
-}
-
-interface DashboardProps {
-  /** Pre-fetched server data for immediate hydration */
-  initialData: TickerData;
-  /** Normalized ticker metadata for client-side reference */
-  ticker: NormalizedTicker;
-  /** Indicates data was server-rendered (vs client fallback) */
-  serverRendered: true;
 }
 
 // ---------------------------------------------------------------------------
@@ -161,22 +152,3 @@ export default async function Page({ searchParams }: PageProps) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// HELPER (inline to avoid new file)
-// ---------------------------------------------------------------------------
-
-/**
- * Normalize ticker with additional validation
- * Re-exports data layer's normalizeTicker but adds project-specific logic
- */
-function normalize(raw: string): NormalizedTicker {
-  const trimmed = raw.trim().toUpperCase();
-
-  // Handle empty/whitespace
-  if (!trimmed) {
-    return normalizeTicker(DEFAULT_TICKER);
-  }
-
-  // Delegate to data layer's canonical normalization
-  return normalizeTicker(trimmed);
-}

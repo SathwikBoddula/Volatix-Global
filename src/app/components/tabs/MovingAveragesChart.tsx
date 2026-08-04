@@ -80,14 +80,6 @@ function formatPrice(
   return formatted;
 }
 
-/**
- * Format percentage with sign
- */
-function formatPercent(value: number, decimals = 2): string {
-  if (!Number.isFinite(value)) return '—';
-  return `${value >= 0 ? '+' : ''}${value.toFixed(decimals)}%`;
-}
-
 // ---------------------------------------------------------------------------
 // CHART DATA TRANSFORMATION (Pure functions, testable)
 // ---------------------------------------------------------------------------

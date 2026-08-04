@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -122,7 +122,7 @@ function transformChartData(history: TickerData['history'], maxPoints = 160): Ch
  */
 function calculateMACDStats(
   summary: TickerData['summary'],
-  metadata?: TickerMetadata
+  _metadata?: TickerMetadata
 ): MACDStatItem[] {
   if (!summary) return [];
 

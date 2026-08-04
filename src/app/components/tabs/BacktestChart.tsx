@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   ResponsiveContainer,
   LineChart,

@@ -8,7 +8,7 @@
  * @module data/providers/MarketDataProvider
  */
 
-import type { TickerData, NormalizedTicker } from '../../app/data/mockData';
+import type { TickerData } from '../../app/data/mockData';
 
 /**
  * Market data provider interface.

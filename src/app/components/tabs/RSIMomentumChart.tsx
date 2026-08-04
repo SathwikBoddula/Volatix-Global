@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -84,14 +84,6 @@ function formatPrice(
   }
 
   return formatted;
-}
-
-/**
- * Format percentage with sign
- */
-function formatPercent(value: number, decimals = 1): string {
-  if (!Number.isFinite(value)) return '—';
-  return `${value >= 0 ? '+' : ''}${value.toFixed(decimals)}%`;
 }
 
 // ---------------------------------------------------------------------------

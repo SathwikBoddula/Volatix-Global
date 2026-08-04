@@ -194,7 +194,7 @@ interface ForecastTableRowProps {
 const ForecastTableRow = memo(function ForecastTableRow({
   row,
   index,
-  currentPrice,
+  currentPrice: _currentPrice,
   metadata,
 }: ForecastTableRowProps) {
   return (

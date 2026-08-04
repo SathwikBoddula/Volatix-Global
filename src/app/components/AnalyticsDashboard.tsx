@@ -68,7 +68,7 @@ export default function AnalyticsDashboard({
   const [tickerData, setTickerData] = useState<TickerData>(initialData);
 
   /** Normalized ticker metadata */
-  const [ticker, setTicker] = useState<NormalizedTicker>(initialTicker);
+  const [_ticker, setTicker] = useState<NormalizedTicker>(initialTicker);
 
   /** Loading state for ticker transitions */
   const [isLoading, setIsLoading] = useState(false);
@@ -105,7 +105,7 @@ export default function AnalyticsDashboard({
       setDisplaySymbol(initialTicker.displaySymbol);
       setIsLoading(false);
     }
-  }, [initialData, initialTicker, serverRendered]);
+  }, [initialData, initialTicker, serverRendered, tickerData]);
 
   // Cleanup debounce timer
   useEffect(() => {

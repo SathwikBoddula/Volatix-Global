@@ -116,14 +116,6 @@ function formatVolume(value: number, normalizedTicker?: NormalizedTicker): strin
   return new Intl.NumberFormat(locale).format(value);
 }
 
-/**
- * Format percentage (RSI, changes)
- */
-function formatPercent(value: number, decimals = 1): string {
-  if (!Number.isFinite(value)) return '—';
-  return `${value >= 0 ? '+' : ''}${value.toFixed(decimals)}%`;
-}
-
 // ---------------------------------------------------------------------------
 // SORTING & FILTERING (Pure functions for testability)
 // ---------------------------------------------------------------------------
