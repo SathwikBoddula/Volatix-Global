@@ -135,11 +135,20 @@ All AI contributors should review the project documentation before making implem
 
 # Scope
 
-The project is currently completing its production market data foundation.
+The project is currently implementing the Production Backend milestone.
+
+Current backend work includes:
+
+- API contract hardening
+- Server-side caching
+- Structured error handling
+- Data freshness and status metadata
+- Rate limiting
+- Structured logging
+- Production validation
 
 Future phases expand into:
 
-- Production backend
 - User accounts
 - Portfolio management
 - AI-powered financial intelligence

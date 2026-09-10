@@ -81,14 +81,9 @@ This project follows:
 
 ### Production Backend
 
-Planned:
-
-- API route contract hardening
-- Server-side caching
-- Logging
-- Error handling
+- Structured request logging
 - Rate limiting
-- Performance optimization
+- Final backend validation
 
 ## Added
 
@@ -101,28 +96,42 @@ Planned:
 - Live/mock data mode selection through `MARKET_DATA_MODE`
 - Live-path retry behavior
 - Stale last-good data fallback
+- Production Backend Specification v1
+- Versioned API success and error contracts
+- Request IDs and data freshness/source metadata
+- Bounded `MarketDataCache` abstraction
+- In-memory cache adapter
+- Stale-if-error TTL
+- Cache failure isolation
+- API contract and cache test coverage
 
 ## Changed
 
 - Replaced prototype/mock data pipeline with production provider architecture
 - Updated dashboard to consume live provider data
+- Added versioned API response and error contracts
+- Added explicit source and freshness metadata to API responses
+- Introduced bounded server-side market data caching
+- Added safe cache failure degradation
 - Improved project documentation and engineering workflow
-- Clarified Production Backend scope around hardening API contracts, caching, error handling, logging, rate limiting, and performance
+- Clarified Production Backend scope around API hardening, caching, logging, rate limiting, and performance
 
 ## Testing
 
-- Added validation for production data layer
+- Added validation for the production data layer
 - Verified dashboard compatibility with live data
-- Verified data layer tests pass
+- Added API contract coverage
+- Added cache TTL, expiry, and failure-isolation coverage
 - Verified TypeScript type-check passes
-- Identified current lint formatting issue and warnings during validation
+- Verified 29 tests pass after the cache increment
 
 ## Documentation
 
-- Synchronized engineering documentation
-- Updated project state
-- Updated active work
-- Updated project status
+- Synchronized project documentation with the Production Backend milestone
+- Added Production Backend Specification v1
+- Updated project state and active work tracking
+- Updated project status to reflect current backend implementation
+- Documented API contract, caching, and validation changes
 
 ---
 

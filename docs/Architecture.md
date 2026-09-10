@@ -185,9 +185,11 @@ Dashboard Components
 Current implementation notes:
 
 - `marketData.server.ts` is the server-only composition boundary for the market data layer.
-- `MarketDataService` coordinates live/mock mode selection, live-path retry behavior, and stale last-good fallback.
+- `MarketDataService` coordinates live/mock mode selection, live-path retry behavior, stale last-good fallback, and bounded cache access.
 - `YahooDataProvider` remains isolated from client components behind the server-only data access path.
-- An initial market data API route exposes `TickerData` at `/api/market-data/[ticker]`.
+- The market data API route exposes a versioned v1 response and error contract at `/api/market-data/[ticker]`.
+- API responses include request ID, source, freshness, stale, and simulated metadata.
+- `MarketDataCache` provides a replaceable cache abstraction with an in-memory implementation and bounded stale-if-error retention.
 
 ---
 
@@ -231,16 +233,25 @@ This minimizes downstream changes.
 
 # Error Handling Strategy
 
-Errors should be handled as close to the provider layer as possible.
+Errors should be handled as close to the provider and service layers as
+possible.
 
 Responsibilities include:
 
-- Retry transient failures
-- Normalize provider errors
-- Return predictable application responses
-- Prevent provider-specific errors from leaking into the UI
+- Retry transient provider failures.
+- Normalize provider errors into application-level errors.
+- Return predictable API responses through the versioned v1 contract.
+- Prevent provider-specific errors from leaking into the UI or API clients.
+- Return safe error messages without exposing provider internals, stack traces,
+  credentials, or configuration details.
+- Allow cache failures to degrade safely without breaking successful live
+  responses.
 
-Current implementation includes live-path retry behavior and stale last-good fallback in the market data service. Production Backend hardening will continue API error handling and response normalization.
+Current implementation includes live-path retry behavior, stale last-good
+fallback, safe API error envelopes, and bounded cache failure isolation.
+
+Production Backend hardening continues with structured logging and rate
+limiting.
 
 ---
 
@@ -250,9 +261,16 @@ Current implementation includes live-path retry behavior and stale last-good fal
 - Efficient provider abstraction
 - Reusable transformation logic
 - Minimized duplicate API requests
-- Future support for caching and request optimization
+- Bounded server-side caching
+- Replaceable cache abstraction
+- Safe cache failure degradation
+- Future support for distributed caching and request optimization
 
-Current implementation includes server-side data access and an in-memory last-good fallback path. Production caching and request optimization remain part of Production Backend hardening.
+Current implementation includes server-side data access, request optimization,
+and an in-memory last-good cache abstraction with bounded stale-if-error
+retention. The cache remains an optimization and resilience layer and can be
+replaced by a different backing store without changing route or provider
+consumers.
 
 ---
 

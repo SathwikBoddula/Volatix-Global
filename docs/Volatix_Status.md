@@ -18,7 +18,7 @@ Current Phase: Phase 1 — Production Foundation
 
 Current Milestone: Milestone 2 — Production Backend
 
-Status: 🟡 Specification Complete — API Contract Implementation In Progress
+Status: 🟡 Implementation In Progress
 
 ---
 
@@ -69,42 +69,59 @@ Status: 🟡 Specification Complete — API Contract Implementation In Progress
 - Initial market data API route implemented
 - Live-path retry behavior implemented
 - Stale last-good data fallback implemented
+- Versioned API success and error contracts implemented
+- Request IDs and freshness/source metadata implemented
+- Bounded `MarketDataCache` abstraction implemented
+- In-memory cache adapter implemented
+- Stale-if-error TTL implemented
+- Cache failure isolation implemented
+- API contract and cache test coverage added
+
 ---
 
 # Currently In Progress
 
-- End-to-end validation
+- Production Backend hardening
+- Structured request logging
+- Rate limiting
+- Final backend validation
 - Documentation synchronization
-- Production hardening
-- AI engineering workflow evaluation
 
 ---
 
 # Upcoming Work
 
-- Production backend
-- Server-side caching
-- API contract hardening
-- Error handling
-- Logging
-- Rate limiting
-- Data freshness/status metadata
-- Performance optimization
+- Complete Production Backend hardening
+- Finalize structured logging
+- Implement rate limiting
+- Complete backend validation
+- Production deployment
+- Environment configuration
+- Performance and security validation
 
 ---
 
 # Current Objective
 
-Implement Production Backend hardening incrementally while preserving the existing architecture and maintaining the `TickerData` contract.
+Complete Production Backend hardening incrementally while preserving the
+existing architecture and the stable `TickerData` contract.
+
+Current focus:
+
+- Structured request logging
+- Rate limiting
+- Final backend validation
+- Documentation synchronization
 
 ---
 
 # Current Priorities
 
-1. Complete Milestone 1 validation
-2. Finalize Production Backend Specification v1
-3. Preserve architectural stability
-4. Begin Production Backend implementation
+1. Complete Production Backend hardening.
+2. Implement rate limiting and structured request logging.
+3. Complete backend validation.
+4. Keep project documentation synchronized.
+5. Preserve architectural stability and the `TickerData` contract.
 
 ---
 
@@ -112,9 +129,10 @@ Implement Production Backend hardening incrementally while preserving the existi
 
 Current technical follow-ups:
 
-- Production Backend hardening remains planned around the initial API route.
-- API clients now receive source and freshness metadata through the v1 response envelope.
-- Production build remains blocked by pre-existing formatting errors outside the backend work.
+- Structured request logging is not yet implemented.
+- Rate limiting is not yet implemented.
+- Final Production Backend validation is still pending.
+- Production build validation remains a release-readiness checkpoint.
 
 ---
 
@@ -122,14 +140,11 @@ Current technical follow-ups:
 
 **Production Backend**
 
-Primary goals:
+Primary remaining goals:
 
-- API contract hardening
-- Caching
-- Retry logic
-- Logging
+- Structured request logging
 - Rate limiting
-- Data freshness/status metadata
+- Final backend validation
 - Performance improvements
 
 ---
@@ -138,12 +153,12 @@ Primary goals:
 
 | Area | Status |
 |------|--------|
-| Architecture          | 🟢 Healthy    |
-|Documentation          | 🟡 Updating   |
+|Architecture           | 🟢 Healthy    |
+|Documentation          | 🟡 Synchronization In Progress   |
 |Development Workflow   | 🟢 Healthy    |
 |UI Foundation          | 🟢 Healthy    |
 |Data Layer             | 🟢 Healthy    |
-|Production Readiness   | 🟡 Validation |
+|Production Readiness   | 🟡 In Progress |
 
 ---
 

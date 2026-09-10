@@ -24,13 +24,22 @@ Phase 1 — Production Foundation
 
 Milestone 2 — Production Backend
 
-Status: 🟡 Design
+Status: 🟡 Implementation In Progress
 
 ---
 
 # Current Objective
 
-Complete Milestone 1 validation and begin PR-006 – Production Backend implementation from the approved design specification.
+Continue PR-006 — Production Backend implementation from the approved
+Production Backend Specification v1.
+
+The API contract and bounded cache abstraction are implemented.
+Current work focuses on:
+
+- Structured request logging
+- Rate limiting
+- Final backend validation
+- Documentation synchronization
 
 ---
 
@@ -42,15 +51,33 @@ The project currently contains:
 - Production provider architecture
 - Yahoo Finance integration
 - Production market data services
-- Stable TickerData domain model
+- Stable `TickerData` domain model
 - Functional dashboard
+- Production Backend v1 API contract
+- Request IDs and freshness/source metadata
+- Bounded in-memory market data cache
+- Stale-if-error cache retention
 - Comprehensive engineering documentation
 
-Current work focuses on validation, documentation synchronization, and preparation for the Production Backend milestone.
+Current work focuses on:
+
+- Structured request logging
+- Rate limiting
+- Final backend validation
+- Documentation synchronization
 
 ---
 
 # Engineering Principles
+
+During implementation:
+
+- Preserve architecture.
+- Preserve `TickerData`.
+- Avoid unnecessary refactoring.
+- Keep changes incremental.
+- Maintain strong typing.
+- Prioritize production quality over speed.
 
 During implementation:
 
@@ -87,21 +114,17 @@ Consumers should never depend directly on provider-specific implementations.
 
 The repository documentation is organized as follows:
 
-```
 docs/
-│
+├── ACTIVE_WORK.md
+├── AI_HANDOFF.md
 ├── Architecture.md
+├── CHANGELOG.md
 ├── Decision_Log.md
+├── PROJECT_CONTEXT.md
+├── PROJECT_STATE.md
 ├── Roadmap.md
 ├── Volatix_Status.md
-├── CHANGELOG.md
-│
-└── project/
-    ├── project_context.md
-    ├── project_state.md
-    ├── active_work.md
-    └── handoff.md
-```
+└── Production_Backend_Spec_v1.md
 
 ---
 
@@ -145,12 +168,15 @@ Then:
 
 The current milestone is complete when:
 
-- Mock data has been fully removed.
-- Live Yahoo Finance data powers the dashboard.
-- The `TickerData` contract remains unchanged.
-- Dashboard functionality is preserved.
-- The production data pipeline is complete.
-- All validation and testing pass.
+- The Production Backend implementation is complete.
+- Every API response follows the documented v1 success or error contract.
+- Live, mock, and stale outcomes are clearly distinguishable.
+- Cache behavior is bounded and cache failures degrade safely.
+- Structured logging is implemented without exposing secrets or provider internals.
+- Rate limiting is implemented behind a replaceable interface.
+- Existing dashboard consumers retain the stable `TickerData` contract.
+- All required validation and testing passes.
+- Project documentation is synchronized with the final implementation state.
 
 ---
 

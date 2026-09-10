@@ -31,7 +31,8 @@ Status: 🟡 Validation & Documentation
 
 ## Milestone 2 — Production Backend
 
-Status: ⬜ Planned
+Status: 🟡 In Progress
+
 Prerequisite:
 - Milestone 1 validation completed
 
