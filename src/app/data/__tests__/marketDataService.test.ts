@@ -225,6 +225,55 @@ test('live failure serves the last-good cached data (stale), not mock or null', 
   });
 });
 
+test('live failure does not serve a last-good value after its stale TTL expires', async () => {
+  process.env.MARKET_DATA_MODE = 'live';
+  const state = freshState({ price: 111 });
+  let currentTime = 1_000;
+  const service = createMarketDataService({
+    liveProvider: makeProvider(state),
+    mockFetch: async () => mockTickerData(999),
+    now: () => currentTime,
+    maxRetries: 0,
+    staleIfErrorTtlMs: 100,
+  });
+
+  const fresh = await service.getTickerData('NVDA');
+  assert.ok(fresh);
+
+  state.fail = true;
+  currentTime = 1_100;
+  const expired = await service.getTickerData('NVDA');
+
+  assert.equal(expired, null);
+  assert.equal(state.summaryCalls, 2);
+});
+
+test('cache adapter failures do not prevent fresh data or leak through a live failure', async () => {
+  process.env.MARKET_DATA_MODE = 'live';
+  const state = freshState({ price: 111 });
+  const unavailableCache = {
+    async get() {
+      throw new Error('cache unavailable');
+    },
+    async set() {
+      throw new Error('cache unavailable');
+    },
+  };
+  const service = createMarketDataService({
+    liveProvider: makeProvider(state),
+    mockFetch: async () => mockTickerData(999),
+    lastGoodCache: unavailableCache,
+    maxRetries: 0,
+  });
+
+  const fresh = await service.getTickerData('NVDA');
+  assert.equal(fresh!.summary.currentPrice, 111);
+
+  state.fail = true;
+  const failed = await service.getTickerData('NVDA');
+  assert.equal(failed, null);
+});
+
 test('live failure retries retryable errors then returns null when no cache exists', async () => {
   process.env.MARKET_DATA_MODE = 'live';
   const state = freshState({ fail: true, retryable: true });

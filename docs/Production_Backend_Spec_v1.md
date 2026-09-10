@@ -61,12 +61,12 @@ interface MarketDataErrorResponse {
 }
 ```
 
-| Condition | Status | Error code |
-|---|---:|---|
-| Empty, malformed, or unsupported ticker parameter | 400 | `INVALID_TICKER` |
-| Valid ticker but no data is available | 404 | `NOT_FOUND` |
-| Request limit exceeded | 429 | `RATE_LIMITED` |
-| Unexpected server failure | 500 | `INTERNAL_ERROR` |
+| Condition                                         | Status | Error code       |
+| ------------------------------------------------- | -----: | ---------------- |
+| Empty, malformed, or unsupported ticker parameter |    400 | `INVALID_TICKER` |
+| Valid ticker but no data is available             |    404 | `NOT_FOUND`      |
+| Request limit exceeded                            |    429 | `RATE_LIMITED`   |
+| Unexpected server failure                         |    500 | `INTERNAL_ERROR` |
 
 Error messages are safe for users. Raw provider messages, stack traces, credentials, and configuration details are logged server-side only.
 
@@ -86,7 +86,7 @@ interface CacheEntry {
 }
 ```
 
-Initial implementation uses an in-memory adapter per server instance. Cache keys use the normalized ticker. Fresh cache TTL and stale-if-error retention are configured independently. The cache is an optimization and resilience layer, never an authorization or data-integrity boundary.
+Implemented in this increment: `InMemoryMarketDataCache` is the default per-server adapter, injected behind `MarketDataCache`. Cache keys use the normalized ticker. The service applies a 15-minute default stale-if-error retention, configurable through `staleIfErrorTtlMs`; the provider's existing live cache retains its independent five-minute freshness TTL. Cache adapter failures degrade safely to an uncached response. The cache is an optimization and resilience layer, never an authorization or data-integrity boundary.
 
 ## Observability
 
@@ -107,7 +107,7 @@ Rate limiting is applied before the service resolves market data. The first adap
 
 1. Add API envelope and error helpers with route tests.
 2. Add ticker validation, request IDs, and structured logging.
-3. Extract the last-good cache behind `MarketDataCache` and add TTL coverage.
+3. Extract the last-good cache behind `MarketDataCache` and add TTL coverage. — Completed
 4. Add the rate-limiter interface and in-memory adapter with `429` tests.
 5. Validate with unit tests, TypeScript, lint, production build, and a live smoke test where credentials and network access are available.
 

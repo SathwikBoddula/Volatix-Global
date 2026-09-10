@@ -16,8 +16,8 @@
  * itself lives in `assembleTickerData` (mockData.ts) — the single source of truth
  * shared with `generateMockData` — so this service holds no duplicate assembly.
  *
- * SCOPE: M3 delivers resilience; `getTickerData` returns `TickerData | null` and
- * is extended to carry data-status (source / asOf / stale) in M4.
+ * SCOPE: resolves live/mock data with status metadata and a replaceable,
+ * bounded last-good cache for stale-if-error resilience.
  *
  * @module data/marketDataService
  */
@@ -30,6 +30,7 @@ import {
   normalizeTicker,
   getMarketDataMode,
 } from './mockData';
+import { InMemoryMarketDataCache, type MarketDataCache } from './marketDataCache';
 
 /** Fetch a full TickerData from the mock generator (e.g. `generateMockData`). */
 export type MockFetch = (rawTicker: string) => Promise<TickerData | null>;
@@ -49,6 +50,15 @@ export interface MarketDataServiceDeps {
 
   /** Base delay for exponential backoff in ms (default 250). */
   baseRetryDelayMs?: number;
+
+  /**
+   * Last-good live-data cache. Defaults to an in-memory adapter per service.
+   * Replace this adapter for distributed deployment without changing consumers.
+   */
+  lastGoodCache?: MarketDataCache;
+
+  /** Maximum age of last-good data eligible for stale-if-error fallback (default 15m). */
+  staleIfErrorTtlMs?: number;
 }
 
 export interface MarketDataService {
@@ -56,20 +66,34 @@ export interface MarketDataService {
   getTickerData(rawTicker: string): Promise<TickerData | null>;
 }
 
-interface CacheEntry {
-  data: TickerData;
-  fetchedAt: number; // ms — surfaced as the "as of" timestamp in M4
-}
-
 export function createMarketDataService(deps: MarketDataServiceDeps): MarketDataService {
   const now = deps.now ?? (() => Date.now());
   const maxRetries = deps.maxRetries ?? 1;
   const baseRetryDelayMs = deps.baseRetryDelayMs ?? 250;
-
-  const cache = new Map<string, CacheEntry>();
+  const staleIfErrorTtlMs = deps.staleIfErrorTtlMs ?? 15 * 60 * 1000;
+  const lastGoodCache = deps.lastGoodCache ?? new InMemoryMarketDataCache(now);
 
   async function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function persistLastGood(key: string, data: TickerData, fetchedAt: number): Promise<void> {
+    try {
+      await lastGoodCache.set(key, { data, fetchedAt }, staleIfErrorTtlMs);
+    } catch {
+      // The cache is a resilience optimization. A cache outage must not turn a
+      // successful live response into an application failure.
+    }
+  }
+
+  async function readLastGood(key: string) {
+    try {
+      return await lastGoodCache.get(key);
+    } catch {
+      // A failed fallback cache is equivalent to no cached value. Provider
+      // failures still resolve to null instead of exposing cache internals.
+      return null;
+    }
   }
 
   async function getTickerData(rawTicker: string): Promise<TickerData | null> {
@@ -116,10 +140,7 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
         };
         const freshData = { ...data, dataStatus };
 
-        cache.set(key, {
-          data: freshData,
-          fetchedAt: asOf,
-        });
+        await persistLastGood(key, freshData, asOf);
 
         return freshData;
       }
@@ -136,7 +157,7 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
     }
 
     // Failure policy: serve last-good cached real data; never silent mock.
-    const cached = cache.get(key);
+    const cached = await readLastGood(key);
     return cached
       ? {
           ...cached.data,

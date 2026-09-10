@@ -99,8 +99,8 @@ None.
 
 1. Finalize Production Backend Specification v1.
 2. Define API response and error contracts.
-3. Design production cache abstraction.
-4. Implement service-layer architecture.
+3. Design production cache abstraction. — Completed
+4. Implement service-layer architecture. — In Progress
 5. Add structured logging.
 6. Introduce rate limiting.
 7. Validate implementation through tests, lint, and type-check.
