@@ -22,15 +22,15 @@ The project is engineered as a long-term software product rather than a prototyp
 
 Phase 1 — Production Foundation
 
-Milestone 1 — Live Market Data
+Milestone 2 — Production Backend
 
-Status: 🟡 Validation & Documentation
+Status: 🟡 Design
 
 ---
 
 # Current Objective
 
-Complete Milestone 1 validation, synchronize project documentation, and prepare for Production Backend development.
+Complete Milestone 1 validation and begin PR-006 – Production Backend implementation from the approved design specification.
 
 ---
 

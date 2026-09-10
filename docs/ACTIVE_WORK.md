@@ -4,9 +4,21 @@ Last Updated: 2026-08-04
 
 ---
 
-# Current Objective
+## Current Objective
 
-Complete Milestone 1 validation, synchronize project documentation, and prepare Production Backend hardening while preserving the existing architecture.
+Begin PR-006 – Production Backend.
+
+Current focus is to design and implement a production-ready backend architecture that provides:
+
+- Stable API contracts
+- Structured error handling
+- Provider abstraction
+- Production caching
+- Logging and observability
+- Rate limiting
+- Extensible support for future market data providers
+
+Implementation will follow a design-first approach before coding begins.
 
 ---
 
@@ -14,9 +26,9 @@ Complete Milestone 1 validation, synchronize project documentation, and prepare 
 
 **Phase 1 — Production Foundation**
 
-**Milestone 1 — Live Market Data**
+**Milestone 2 — Production Backend**
 
-Status: 🟡 Feature Complete — Validation & Documentation In Progress
+Status: 🟡 Specification Complete — API Contract Implementation In Progress
 
 ---
 
@@ -83,16 +95,15 @@ None.
 
 ---
 
-# Next Tasks
+## Next Tasks
 
-- Complete documentation synchronization
-- Finish production validation
-- Begin Production Backend
-- API route contract hardening
-- Production caching strategy
-- Structured error responses
-- Data freshness/status metadata
-- Logging
+1. Finalize Production Backend Specification v1.
+2. Define API response and error contracts.
+3. Design production cache abstraction.
+4. Implement service-layer architecture.
+5. Add structured logging.
+6. Introduce rate limiting.
+7. Validate implementation through tests, lint, and type-check.
 
 ---
 

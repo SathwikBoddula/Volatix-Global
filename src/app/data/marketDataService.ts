@@ -24,6 +24,7 @@
 
 import {
   type TickerData,
+  type TickerDataStatus,
   type IDataProvider,
   assembleTickerData,
   normalizeTicker,
@@ -76,7 +77,18 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
 
     // `mock` mode = simulated data; explicit opt-in / dev / demo only.
     if (getMarketDataMode() === 'mock') {
-      return deps.mockFetch(rawTicker);
+      const data = await deps.mockFetch(rawTicker);
+      return data
+        ? {
+            ...data,
+            dataStatus: {
+              source: 'mock',
+              asOf: now(),
+              stale: false,
+              simulated: true,
+            },
+          }
+        : null;
     }
 
     // `live` mode: try fresh, retrying only while failures are retryable.
@@ -95,12 +107,21 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
       }
 
       if (data) {
+        const asOf = now();
+        const dataStatus: TickerDataStatus = {
+          source: 'live',
+          asOf,
+          stale: false,
+          simulated: false,
+        };
+        const freshData = { ...data, dataStatus };
+
         cache.set(key, {
-          data,
-          fetchedAt: now(),
+          data: freshData,
+          fetchedAt: asOf,
         });
 
-        return data;
+        return freshData;
       }
 
       if (!retryable) {
@@ -116,7 +137,17 @@ export function createMarketDataService(deps: MarketDataServiceDeps): MarketData
 
     // Failure policy: serve last-good cached real data; never silent mock.
     const cached = cache.get(key);
-    return cached ? cached.data : null;
+    return cached
+      ? {
+          ...cached.data,
+          dataStatus: {
+            source: 'live',
+            asOf: cached.fetchedAt,
+            stale: true,
+            simulated: false,
+          },
+        }
+      : null;
   }
 
   return {

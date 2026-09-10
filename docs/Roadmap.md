@@ -66,7 +66,7 @@ Status: ⬜ Planned
 
 ## Milestone 4 — Production Readiness
 
-Status: ⬜ Planned
+Status: 🟡 Design In Progress
 
 ### Goals
 

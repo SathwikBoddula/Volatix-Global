@@ -160,6 +160,7 @@ test('mock mode returns mockFetch result and never touches the live provider', a
   const service = createMarketDataService({
     liveProvider: makeProvider(state),
     mockFetch: async () => mockTickerData(999),
+    now: () => 100,
   });
 
   const data = await service.getTickerData('NVDA');
@@ -167,6 +168,12 @@ test('mock mode returns mockFetch result and never touches the live provider', a
   assert.ok(data);
   assert.equal(data!.summary.currentPrice, 999); // from mockFetch
   assert.equal(state.summaryCalls, 0); // live provider never invoked in mock mode
+  assert.deepEqual(data!.dataStatus, {
+    source: 'mock',
+    asOf: 100,
+    stale: false,
+    simulated: true,
+  });
 });
 
 test('live mode assembles and returns fresh live data', async () => {
@@ -175,6 +182,7 @@ test('live mode assembles and returns fresh live data', async () => {
   const service = createMarketDataService({
     liveProvider: makeProvider(state),
     mockFetch: async () => mockTickerData(999),
+    now: () => 200,
   });
 
   const data = await service.getTickerData('NVDA');
@@ -182,24 +190,39 @@ test('live mode assembles and returns fresh live data', async () => {
   assert.ok(data);
   assert.equal(data!.summary.currentPrice, 111); // live data, not mock
   assert.equal(state.summaryCalls, 1); // one assemble, no retry needed
+  assert.deepEqual(data!.dataStatus, {
+    source: 'live',
+    asOf: 200,
+    stale: false,
+    simulated: false,
+  });
 });
 
 test('live failure serves the last-good cached data (stale), not mock or null', async () => {
   process.env.MARKET_DATA_MODE = 'live';
   const state = freshState({ price: 111 });
+  let currentTime = 300;
   const service = createMarketDataService({
     liveProvider: makeProvider(state),
     mockFetch: async () => mockTickerData(999),
+    now: () => currentTime,
   });
 
   const fresh = await service.getTickerData('NVDA'); // primes the cache
   assert.equal(fresh!.summary.currentPrice, 111);
 
   state.fail = true; // subsequent live fetches fail
+  currentTime = 400;
   const stale = await service.getTickerData('NVDA');
 
   assert.ok(stale);
   assert.equal(stale!.summary.currentPrice, 111); // served from cache — not mock (999), not null
+  assert.deepEqual(stale!.dataStatus, {
+    source: 'live',
+    asOf: 300,
+    stale: true,
+    simulated: false,
+  });
 });
 
 test('live failure retries retryable errors then returns null when no cache exists', async () => {

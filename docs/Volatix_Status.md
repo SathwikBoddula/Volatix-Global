@@ -16,9 +16,9 @@ The project is engineered as a long-term software product with a strong emphasis
 
 Current Phase: Phase 1 — Production Foundation
 
-Current Milestone: Milestone 1 — Live Market Data
+Current Milestone: Milestone 2 — Production Backend
 
-Status: 🟡 Validation & Documentation
+Status: 🟡 Specification Complete — API Contract Implementation In Progress
 
 ---
 
@@ -37,8 +37,8 @@ Status: 🟡 Validation & Documentation
 
 | Milestone | Status |
 |------------|--------|
-| Live Market Data | 🟡 In Progress |
-| Production Backend | ⬜ Planned |
+| Live Market Data | 🟢 Complete |
+| Production Backend | 🟡 In Progress |
 | Production Deployment | ⬜ Planned |
 | Production Readiness | ⬜ Planned |
 
@@ -95,16 +95,16 @@ Status: 🟡 Validation & Documentation
 
 # Current Objective
 
-Complete the production data layer while preserving the existing architecture and maintaining the `TickerData` contract.
+Implement Production Backend hardening incrementally while preserving the existing architecture and maintaining the `TickerData` contract.
 
 ---
 
 # Current Priorities
 
-1. Complete documentation synchronization
-2. Validate production market data
+1. Complete Milestone 1 validation
+2. Finalize Production Backend Specification v1
 3. Preserve architectural stability
-4. Prepare Production Backend
+4. Begin Production Backend implementation
 
 ---
 
@@ -113,8 +113,8 @@ Complete the production data layer while preserving the existing architecture an
 Current technical follow-ups:
 
 - Production Backend hardening remains planned around the initial API route.
-- Data freshness/status metadata is not yet surfaced to consumers.
-- Current lint validation reports a formatting issue and warnings.
+- API clients now receive source and freshness metadata through the v1 response envelope.
+- Production build remains blocked by pre-existing formatting errors outside the backend work.
 
 ---
 

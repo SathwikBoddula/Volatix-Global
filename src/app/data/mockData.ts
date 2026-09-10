@@ -53,12 +53,22 @@ export interface TickerSummary {
   backtestRMSE: number;
 }
 
+/** Source and freshness state for a complete ticker payload. */
+export interface TickerDataStatus {
+  source: 'live' | 'mock';
+  asOf: number;
+  stale: boolean;
+  simulated: boolean;
+}
+
 export interface TickerData {
   metadata: TickerMetadata;
   summary: TickerSummary;
   history: HistoryRow[];
   backtest: BacktestRow[];
   forecast: ForecastRow[];
+  /** Present when the market-data service resolves this payload. */
+  dataStatus?: TickerDataStatus;
 }
 
 // ============================================================================
